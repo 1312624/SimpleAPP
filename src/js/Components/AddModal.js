@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import request from 'superagent';
 import { autobind } from 'core-decorators';
 
 @autobind
@@ -13,30 +12,15 @@ export default class AddModal extends Component {
     }
 
     onAwardAdded() {
-        let self = this;
-        request
-            .post('http://localhost:3030/api/award')
-            .send({ Name: self.refs.inputName.value })
-            .set('Accept', 'application/json')
-            .end(function (err, res) {
-                if(err) alert('Award Name Already Exist')
-                else self.props.addNewAward(res.body);
-            });
+        const { addNewAward } = this.props;
+        addNewAward(this.inputName.value);
+        $(`#${this.props.idModal}`).modal('hide');
     }
 
     onMemberAdded() {
-        let self = this;
-        request
-            .post('http://localhost:3030/api/member')
-            .send({
-                memberCode: self.refs.inputCode.value,
-                Name: self.refs.inputName.value,
-            })
-            .set('Accept', 'application/json')
-            .end(function (err, res) {
-                if(err) alert('Member Code Already Exist');
-                else self.props.addNewMember(res.body);
-            });
+        const { addNewMember } = this.props;
+        addNewMember(this.inputCode.value, this.inputName.value);
+        $(`#${this.props.idModal}`).modal('hide');
     }
 
 
@@ -52,10 +36,10 @@ export default class AddModal extends Component {
                         <div class="modal-body">
                             {
                                 this.props.type === 'member' &&
-                                <input ref="inputCode" type="text" placeholder="Code" />
+                                <input ref= { (input) => this.inputCode = input } type="text" placeholder="Code" />
                             }
                             <br /><br />
-                            <input ref="inputName" type="text" placeholder="Name" />
+                            <input ref= { (input) => this.inputName = input } type="text" placeholder="Name" />
                         </div>
                         <div class="modal-footer">
                             <button class="btn btn-primary" onClick={this.onItemAdded}>Save</button>

@@ -1,51 +1,45 @@
 import React, { Component } from 'react';
-import Award from './Award';
-import request from 'superagent';
+import Award from './Award/Award';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { getAllAwards, getAllAwardsSuccess } from '../Actions/awardActions';
 
+@connect(
+    (state) => ({
+        listAwards: state.awardReducers
+    }),
+    (dispatch) => ({
+        actions: bindActionCreators({ getAllAwards, getAllAwardsSuccess }, dispatch)
+    })
+)
 @autobind
-export default class AssModal extends Component {
-
-    constructor() {
-        super();
-        this.state = {
-            currentListAward: []
-        }
-    }
+class AssModal extends Component {
 
     componentWillMount() {
-        let self = this;
-        request
-            .get('http://localhost:3030/api/award')
-            .end((err, res) => {
-                self.setState({ currentListAward: res.body });
-            });
+        const { getAllAwards } = this.props.actions;
+        getAllAwards();
     }
 
-    AssociateAward() {
-        console.log(this.props.code);
+    AssociateAward(idModal, code, onMemberAssociate) {
         var awards = [];
         $(".checkbox label input[type='checkbox']:checked").each(function () {
             awards.push($(this).val());
         });
 
-        let self = this;
-        request
-            .put(`http://localhost:3030/api/member/${self.props.code}`)
-            .send({ Awards: awards })
-            .end((err, res) => {
-                if (!err) {
-                    alert(`Associate Award To Member ${self.props.code} Successfully`);
-                    $('#assoModal').modal('hide');
-                }
-                else alert(`Something went wrong`);
-            });
+
+        onMemberAssociate(code, awards).then((result) => {
+            alert(result.text);
+        });
+
+        $(`#${idModal}`).modal('hide');
     }
 
     render() {
+        const { code, listAwards, idModal, onMemberAssociate } = this.props;
         return (
 
-            <div id='assoModal' class="modal fade" role="dialog">
+            <div id={idModal} class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -55,8 +49,8 @@ export default class AssModal extends Component {
                         <div class="modal-body" style={{ paddingLeft: '35px', overflow: 'auto', height: '400px' }}>
                             <ul>
                                 {
-                                    this.state.currentListAward.length > 0 ? (
-                                        this.state.currentListAward.map(award => {
+                                    listAwards.length > 0 ? (
+                                        listAwards.map(award => {
                                             return (
                                                 <li key={award._id}>
                                                     <div class="checkbox" style={{ float: 'left', marginRight: '10px' }}>
@@ -77,7 +71,7 @@ export default class AssModal extends Component {
                             </ul>
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-primary" onClick={this.AssociateAward}>Associate</button>
+                            <button class="btn btn-primary" onClick={ () => this.AssociateAward(idModal, code, onMemberAssociate) }>Associate</button>
                             <button class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                     </div>
@@ -87,3 +81,5 @@ export default class AssModal extends Component {
         );
     }
 }
+
+export default AssModal;

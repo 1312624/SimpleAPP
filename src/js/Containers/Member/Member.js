@@ -1,32 +1,28 @@
 import React, { Component } from 'react';
-import Award from './Award';
+import Award from '../Award/Award';
 import request from 'superagent';
 import { autobind } from 'core-decorators';
 import { browserHistory } from "react-router";
-import AssModal from './AssociateModal';
+import AssModal from '../AssociateModal';
 
 
 @autobind
 export default class Member extends Component {
 
-    Delete() {
-        this.props.onMemberDeleted(this.props.code);
+    openAwardModal(code) {
+        $(`#assoModal${code}`).modal('show');
     }
-
-    openAwardModal() {
-        $('#assoModal').modal('show');
-    }
-
-
 
     MoreInfo() {
         browserHistory.push(`/member/${this.props.code}`);
     }
 
     render() {
+        const { code, onMemberAssociate, onMemberDeleted } = this.props;
+
         return (
             <div class="row">
-                <AssModal code={this.props.code} />
+                <AssModal code={code} idModal={`assoModal${code}`} onMemberAssociate={onMemberAssociate}/>
                 <div class="panel panel-default col-md-6" style={{ padding: 0 }}>
                     <div class="panel-heading">
                         {this.props.code}
@@ -35,9 +31,9 @@ export default class Member extends Component {
                         {this.props.name}
                         <i class="fa fa-ellipsis-v member-3dots">
                             <div class="member-3dots-content">
-                                <div onClick={this.openAwardModal}><p>Associate Award</p></div>
+                                <div onClick={() => this.openAwardModal(code)}><p>Associate Award</p></div>
                                 <div onClick={this.MoreInfo}><p>More Info</p></div>
-                                <div onClick={this.Delete}><p>Delete</p></div>
+                                <div onClick={() => onMemberDeleted(code)}><p>Delete</p></div>
                             </div>
                         </i>
                     </div>

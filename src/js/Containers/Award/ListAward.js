@@ -1,36 +1,31 @@
 import React, { Component } from 'react';
-import Award from '../Containers/Award';
-import AddModal from '../Components/AddModal';
-import request from 'superagent';
+import Award from './Award';
+import AddModal from '../../Components/AddModal';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as awardActions from '../../Actions/awardActions';
 
+@connect(
+    (state) => ({
+        listAwards: state.awardReducers
+    }),
+    (dispatch) => ({
+        awardActions: bindActionCreators(awardActions, dispatch)
+    })
+)
 @autobind
-export default class ListAward extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            listAward: [],
-        }
-    }
+class ListAward extends Component {
 
     componentWillMount() {
-        let self = this;
-        request
-            .get('http://localhost:3030/api/award')
-            .end((err, res) => {
-                if (!res) return;
-                self.setState({ listAward: res.body });
-            });
-    }
-
-    addAward(item) {
-        this.state.listAward.push(item);
-        this.setState({ listAward: this.state.listAward });
-        $('#addAward').modal('hide');
+        const { getAllAwards } = this.props.awardActions;
+        getAllAwards();
     }
 
     render() {
 
+        const { listAwards } = this.props;
+        const { addAward } = this.props.awardActions;
         return (
             <div class="container">
                 <button class="btn btn-primary"
@@ -40,9 +35,9 @@ export default class ListAward extends Component {
                 <br /><br />
                 <ul>
                     {
-                        this.state.listAward.length > 0 ? (
+                        listAwards.length > 0 ? (
 
-                            this.state.listAward.map(item => {
+                            listAwards.map(item => {
                                 return (
                                     <li key={item._id}>
                                         <Award name={item.Name} />
@@ -50,16 +45,18 @@ export default class ListAward extends Component {
                                 );
                             })
                         ) : (
-                            <h4>Chưa có award nào</h4>
-                        )
+                                <h4>Chưa có award nào</h4>
+                            )
                     }
                 </ul>
 
                 <AddModal idModal="addAward"
                     header="Add New Award"
                     type="award"
-                    addNewAward={this.addAward} />
+                    addNewAward={addAward} />
             </div>
         );
     }
 }
+
+export default ListAward;

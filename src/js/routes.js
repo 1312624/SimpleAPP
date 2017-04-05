@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import Layout from "./Components/Layout";
 import IndexPage from "./Components/IndexPage";
-import ListAward from './Containers/ListAward';
-import MemberInfo from './Containers/MemberInfo';
+import ListAward from './Containers/Award/ListAward';
+import MemberInfo from './Containers/Member/MemberInfo';
 
 import { Router, Route, browserHistory, IndexRoute } from "react-router";
 
